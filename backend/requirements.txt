@@ -1,0 +1,8 @@
+requests
+pandas
+folium
+python-dotenv
+lxml
+plotly
+scikit-learn
+sqlalchemy

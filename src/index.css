@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Ellevio Inspire Light Theme */
+  --bg-primary: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #5e5e5e;
+  --accent-color: #007ac9;
+  /* Ellevio Blue-ish */
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Map Container Override for Leaflet */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #f0f2f5;
+  /* Light subtle bg for map div */
+  z-index: 0;
+}
+
+/* Clean Tooltip Style */
+.leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: 600;
+  color: #4b5563;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner:
+    - generic [ref=e4]:
+      - heading "GridWatch AI" [level=1] [ref=e5]
+      - paragraph [ref=e6]: NextGen System Transparency
+      - generic [ref=e8]: LIVE MODE
+    - button [ref=e9]:
+      - img [ref=e10]
+  - main:
+    - img [ref=e13]
+    - generic [ref=e16]:
+      - button "Reset to Live" [ref=e17]:
+        - img [ref=e18]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]: Yesterday
+          - generic [ref=e24]: Live
+          - generic [ref=e25]: Tomorrow
+        - slider [ref=e26] [cursor=pointer]: "0"
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - img [ref=e29]
+          - generic [ref=e32]: 10:31
+        - paragraph [ref=e33]: Jan 21
+  - generic [ref=e35]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - heading "System Conscience" [level=3] [ref=e38]
+        - paragraph [ref=e39]: MODERATE STRESS
+      - img [ref=e41]
+    - paragraph [ref=e43]: "\"Demand is picking up. Consider shifting heavy usage.\""
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - img [ref=e46]
+        - generic [ref=e50]: "Wind: High"
+      - generic [ref=e51]:
+        - img [ref=e52]
+        - generic [ref=e55]: Low Carbon
+  - generic [ref=e57]:
+    - generic [ref=e58]:
+      - img [ref=e59]
+      - heading "QA Control Center" [level=2] [ref=e68]
+    - generic [ref=e69]:
+      - heading "Chaos Engineering" [level=3] [ref=e70]
+      - generic [ref=e72]:
+        - generic [ref=e73]:
+          - paragraph [ref=e74]: Simulate System Failure
+          - paragraph [ref=e75]: Injects 503 errors & 2s latency
+        - button [ref=e76]
+    - generic [ref=e77]:
+      - heading "Live Audit Log" [level=3] [ref=e78]
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e81]: "[14:02:22]"
+          - generic [ref=e82]: "A11y Check: WCAG 2.1 AA Passed"
+        - generic [ref=e83]:
+          - generic [ref=e84]: "[14:02:20]"
+          - generic [ref=e85]: Map Component Mounted
+    - button "Generate Playwright Spec" [ref=e87]:
+      - img [ref=e88]
+      - text: Generate Playwright Spec
+```
