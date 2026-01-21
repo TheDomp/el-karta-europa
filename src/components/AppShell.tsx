@@ -1,7 +1,5 @@
-import React from 'react';
 import { ZoneTable } from './ZoneTable';
 import { useGridStore } from '../store/useGridStore';
-import { Activity } from 'lucide-react';
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { timeMode, currentTime } = useGridStore();

@@ -1,6 +1,5 @@
 // src/services/EntsoeService.ts
 import { addDays, format } from 'date-fns';
-import { detectAnomalies } from '../utils/AnomalyDetection';
 
 // Types
 export interface EntsoeDataPoint {
