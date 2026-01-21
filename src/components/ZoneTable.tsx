@@ -52,16 +52,7 @@ export const ZoneTable: React.FC = () => {
                                 </div>
                                 {/* Simple mapping for display names */}
                                 <div className="text-[9px] text-slate-400 uppercase font-medium tracking-tight truncate max-w-[100px]">
-                                    {zone.id.includes('SE') ? 'Sverige' :
-                                        zone.id.includes('DK') ? 'Danmark' :
-                                            zone.id.includes('NO') ? 'Norge' :
-                                                zone.id.includes('IT') ? 'Italien' :
-                                                    zone.id.includes('FI') ? 'Finland' :
-                                                        zone.id.includes('DE') ? 'Tyskland' :
-                                                            zone.id.includes('FR') ? 'Frankrike' :
-                                                                zone.id.includes('ES') ? 'Spanien' :
-                                                                    zone.id.includes('PT') ? 'Portugal' :
-                                                                        zone.id.includes('GB') ? 'Storbritannien' : 'Europa'}
+                                    {idToCountry(zone.id)}
                                 </div>
                             </div>
 
@@ -82,4 +73,26 @@ export const ZoneTable: React.FC = () => {
             <ComparisonModal isOpen={isCompareOpen} onClose={() => setIsCompareOpen(false)} />
         </>
     );
+};
+
+// Helper to map IDs to Country names
+const idToCountry = (id: string) => {
+    if (id.startsWith('SE-')) return 'Sverige';
+    if (id.startsWith('DK-')) return 'Danmark';
+    if (id.startsWith('NO-')) return 'Norge';
+    if (id.startsWith('FI')) return 'Finland';
+    if (id.startsWith('DE')) return 'Tyskland';
+    if (id.startsWith('FR')) return 'Frankrike';
+    if (id.startsWith('IT-')) return 'Italien';
+    if (id.startsWith('ES-')) return 'Spanien';
+    if (id.startsWith('PT-')) return 'Portugal';
+    if (id.startsWith('GB-') || id.startsWith('UK')) return 'Storbritannien';
+    if (id.startsWith('PL-')) return 'Polen';
+    if (id.startsWith('NL-')) return 'Nederländerna';
+    if (id.startsWith('BE-')) return 'Belgien';
+    if (id.startsWith('AT-')) return 'Österrike';
+    if (id.startsWith('CH-')) return 'Schweiz';
+    if (id.startsWith('CZ-')) return 'Tjeckien';
+    if (id.startsWith('HU-')) return 'Ungern';
+    return 'Europa';
 };

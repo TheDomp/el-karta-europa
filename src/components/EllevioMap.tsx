@@ -30,30 +30,9 @@ export const EllevioMap: React.FC = () => {
     }, []);
 
     const style = (feature: any) => {
-        // The new GeoJSON uses 'zoneName' (e.g. SE-SE1, IT-NORD)
-        // We map this to our store IDs (SE1, IT-N, etc.)
-        const rawName = feature.properties.zoneName || feature.id; // Fallback
-
-        // Remove Country Code prefix if present (SE-SE1 -> SE1)
-        // But be careful: IT-NORD is not IT-N in our store maybe?
-        // Let's assume store logic needs to adapt or we normalize here.
-
-        let zoneId = rawName;
-        if (rawName.startsWith('SE-')) zoneId = rawName.replace('SE-', '');
-        if (rawName.startsWith('NO-')) zoneId = rawName.replace('NO-', '');
-        if (rawName.startsWith('DK-')) zoneId = rawName.replace('DK-', '');
-
-        // IT mapping (GeoJSON: IT-NORD, IT-CNOR, IT-CSUD, IT-SUD, IT-SICI, IT-SARD)
-        // Store: IT-N, IT-CN, IT-CS, IT-S, IT-SIC, IT-SAR
-        if (rawName === 'IT-NORD') zoneId = 'IT-N';
-        if (rawName === 'IT-CNOR') zoneId = 'IT-CN';
-        if (rawName === 'IT-CSUD') zoneId = 'IT-CS';
-        if (rawName === 'IT-SUD') zoneId = 'IT-S';
-        if (rawName === 'IT-SICI') zoneId = 'IT-SIC';
-        if (rawName === 'IT-SARD') zoneId = 'IT-SAR';
+        const zoneId = feature.properties.zoneName || feature.id;
 
         const zoneData = zonesData.find(z => z.id === zoneId);
-        // Also check if tracked using the normalized ID
         const isTracked = trackedZones.includes(zoneId);
 
         const price = zoneData?.price || 0;
@@ -77,19 +56,7 @@ export const EllevioMap: React.FC = () => {
     };
 
     const onEachFeature = (feature: any, layer: any) => {
-        const rawName = feature.properties.zoneName || feature.id;
-
-        // Apply same mapping for click handler
-        let zoneId = rawName;
-        if (rawName.startsWith('SE-')) zoneId = rawName.replace('SE-', '');
-        if (rawName.startsWith('NO-')) zoneId = rawName.replace('NO-', '');
-        if (rawName.startsWith('DK-')) zoneId = rawName.replace('DK-', '');
-        if (rawName === 'IT-NORD') zoneId = 'IT-N';
-        if (rawName === 'IT-CNOR') zoneId = 'IT-CN';
-        if (rawName === 'IT-CSUD') zoneId = 'IT-CS';
-        if (rawName === 'IT-SUD') zoneId = 'IT-S';
-        if (rawName === 'IT-SICI') zoneId = 'IT-SIC';
-        if (rawName === 'IT-SARD') zoneId = 'IT-SAR';
+        const zoneId = feature.properties.zoneName || feature.id;
 
         layer.bindTooltip(feature.properties.zoneName || feature.properties.name, {
             permanent: false,
