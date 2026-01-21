@@ -1,12 +1,23 @@
 import { create } from 'zustand';
 import { ChaosConfig } from '../services/EntsoeService';
 
+export interface GenerationMix {
+    nuclear: number;
+    hydro: number;
+    wind: number;
+    solar: number;
+    gas: number;
+    coal: number;
+    other: number;
+}
+
 export interface GridZoneData {
     id: string;
     price: number;
     load: number;
     carbonIntensity?: number;
     windGeneration?: number;
+    generationMix?: GenerationMix;
 }
 
 interface GridState {

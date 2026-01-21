@@ -35,6 +35,36 @@ export const DataSynchronizer = () => {
                     let solarDiscount = 0;
                     if (isSouth && hour > 10 && hour < 16) solarDiscount = 25;
 
+                    // ... pricing logic
+
+                    // Generation Mix Mock Logic
+                    let mix = { nuclear: 0, hydro: 0, wind: 0, solar: 0, gas: 0, coal: 0, other: 0 };
+
+                    if (id.includes('SE') || id.includes('NO')) {
+                        // Hydro Heavy
+                        mix = { nuclear: 30, hydro: 45, wind: 20, solar: 2, gas: 0, coal: 0, other: 3 };
+                        if (id.includes('NO')) mix.nuclear = 0;
+                        if (id.includes('SE1') || id.includes('SE2')) { mix.hydro = 60; mix.nuclear = 0; }
+                    } else if (id === 'FR') {
+                        // Nuclear Heavy
+                        mix = { nuclear: 70, hydro: 10, wind: 10, solar: 5, gas: 5, coal: 0, other: 0 };
+                    } else if (id.includes('DE') || id.includes('PL') || id.includes('NL')) {
+                        // Coal/Wind/Gas
+                        mix = { nuclear: 0, hydro: 5, wind: 35, solar: 15, gas: 25, coal: 15, other: 5 };
+                    } else if (isSouth) {
+                        // Solar/Gas
+                        mix = { nuclear: 10, hydro: 10, wind: 15, solar: 30, gas: 35, coal: 0, other: 0 };
+                    } else {
+                        // Default Mix
+                        mix = { nuclear: 10, hydro: 20, wind: 20, solar: 10, gas: 30, coal: 5, other: 5 };
+                    }
+
+                    // Add noise
+                    Object.keys(mix).forEach(key => {
+                        // @ts-ignore
+                        mix[key] = Math.max(0, mix[key] + (Math.random() * 5 - 2.5));
+                    });
+
                     let price = basePrice + timeFactor - solarDiscount + (Math.random() * 5);
                     let load = 5000 + (Math.random() * 5000);
 
@@ -47,7 +77,8 @@ export const DataSynchronizer = () => {
                         price: parseFloat(price.toFixed(2)),
                         load: Math.round(load),
                         windGeneration: Math.round(1000 + Math.random() * 2000),
-                        carbonIntensity: Math.round(20 + Math.random() * 200)
+                        carbonIntensity: Math.round(20 + Math.random() * 200),
+                        generationMix: mix
                     };
                 });
 
