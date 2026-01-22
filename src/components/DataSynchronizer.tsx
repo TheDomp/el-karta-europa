@@ -1,21 +1,78 @@
 import { useEffect } from 'react';
 import { useGridStore } from '../store/useGridStore';
 import zonesGeoJson from '../assets/data/zones.json';
+import { fetchDayAheadPrices, fetchGenerationMix, ZONE_EIC_MAPPINGS } from '../services/EntsoeService';
 
 // Extended List including new European Zones
 const ALL_ZONES = zonesGeoJson.features.map((f: any) => f.properties.zoneName || f.id);
 
 export const DataSynchronizer = () => {
-    const { currentTime, setZonesData, setLoading, setError, isChaosEnabled } = useGridStore();
+    const { currentTime, setZonesData, setLoading, setError, isChaosEnabled, trackedZones, setZoneLoading } = useGridStore();
 
     useEffect(() => {
         const syncData = async () => {
             setLoading(true);
             try {
                 // Generate data for ALL available zones in GeoJSON
-                const results = ALL_ZONES.map((id) => {
+                const results = await Promise.all(ALL_ZONES.map(async (id) => {
+                    const eicCode = ZONE_EIC_MAPPINGS[id];
                     const hour = currentTime.getHours();
 
+                    // 1. UNSUPPORTED ZONES (Gray)
+                    if (!eicCode) {
+                        return {
+                            id,
+                            price: 0,
+                            load: 0,
+                            isSupported: false,
+                            windGeneration: 0,
+                            carbonIntensity: 0,
+                            generationMix: { nuclear: 0, hydro: 0, wind: 0, solar: 0, gas: 0, coal: 0, other: 0 }
+                        };
+                    }
+
+                    if (trackedZones.includes(id)) {
+                        setZoneLoading(id, true);
+                        try {
+                            const prices = await fetchDayAheadPrices(eicCode, currentTime);
+                            const price = prices[hour];
+
+                            // Check if price is valid (it could be 0, but strictly undefined means missing)
+                            if (price === undefined || isNaN(price)) {
+                                throw new Error('Price data missing for current hour');
+                            }
+
+                            // Fetch Real Mix
+                            const realMix = await fetchGenerationMix(eicCode, currentTime);
+
+                            if (!realMix) {
+                                console.warn(`[DataSynchronizer] Mix missing for ${id}, using fallback`);
+                            }
+
+                            let mix = realMix || { nuclear: 0, hydro: 0, wind: 0, solar: 0, gas: 0, coal: 0, other: 0 };
+                            let load = 5000 + (Math.random() * 5000);
+
+                            // Construct Final Data
+                            return {
+                                id,
+                                price: parseFloat(price.toFixed(2)),
+                                load: Math.round(load),
+                                isSupported: true,
+                                windGeneration: Math.round(1000 + Math.random() * 2000),
+                                carbonIntensity: Math.round(20 + Math.random() * 200),
+                                generationMix: mix
+                            };
+                        } catch (e: any) {
+                            console.log(`BROWSER_DEBUG_ERROR: Failed to fetch live data for ${id}`, e.message || e);
+                            // Fall through to mock logic below
+                        } finally {
+                            setZoneLoading(id, false);
+                        }
+                    }
+
+                    console.log(`BROWSER_DEBUG_MOCK: Generating mock data for ${id}`);
+
+                    // 3. SUPPORTED BUT NOT TRACKED (Mock/Preview) or fallback from live data fetch
                     // Simple deterministic simulation for demo
                     // Higher latitudes (SE1, NO1) -> often cheaper hydro/wind?
                     // Central Europe (DE, NL) -> higher base price?
@@ -65,6 +122,12 @@ export const DataSynchronizer = () => {
                         mix[key] = Math.max(0, mix[key] + (Math.random() * 5 - 2.5));
                     });
 
+                    // CLEANUP: Force Gas/Coal to 0 for Nordic countries to be realistic
+                    if (id.includes('SE') || id.includes('NO')) {
+                        mix.gas = 0;
+                        mix.coal = 0;
+                    }
+
                     let price = basePrice + timeFactor - solarDiscount + (Math.random() * 5);
                     let load = 5000 + (Math.random() * 5000);
 
@@ -76,22 +139,25 @@ export const DataSynchronizer = () => {
                         id,
                         price: parseFloat(price.toFixed(2)),
                         load: Math.round(load),
+                        isSupported: true, // Mark as supported even if mocked
                         windGeneration: Math.round(1000 + Math.random() * 2000),
                         carbonIntensity: Math.round(20 + Math.random() * 200),
                         generationMix: mix
                     };
-                });
+                }));
 
                 setZonesData(results);
             } catch (err: any) {
                 setError(err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
         syncData();
         const interval = setInterval(syncData, 60000);
         return () => clearInterval(interval);
-    }, [currentTime, isChaosEnabled, setZonesData, setLoading, setError]);
+    }, [currentTime, isChaosEnabled, setZonesData, setLoading, setError, trackedZones]);
 
     return null;
 };

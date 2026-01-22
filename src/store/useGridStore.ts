@@ -18,6 +18,7 @@ export interface GridZoneData {
     carbonIntensity?: number;
     windGeneration?: number;
     generationMix?: GenerationMix;
+    isSupported?: boolean;
 }
 
 interface GridState {
@@ -31,12 +32,15 @@ interface GridState {
 
     // New: Tracked Zones (User selection)
     trackedZones: string[];
+    loadingZones: string[]; // New: Track which specific zones are loading
 
     // Actions
     setTime: (date: Date) => void;
     toggleChaos: () => void;
     setZone: (zoneId: string | null) => void;
-    toggleTrackedZone: (zoneId: string) => void; // New Action
+    toggleTrackedZone: (zoneId: string) => void;
+    clearTrackedZones: () => void;
+    setZoneLoading: (zoneId: string, isLoading: boolean) => void; // New Action
     setZonesData: (data: GridZoneData[]) => void;
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
@@ -51,6 +55,7 @@ export const useGridStore = create<GridState>((set, get) => ({
     isLoading: true,
     error: null,
     trackedZones: [], // Start empty as requested
+    loadingZones: [],
 
     setTime: (date: Date) => {
         const now = new Date();
@@ -80,7 +85,24 @@ export const useGridStore = create<GridState>((set, get) => ({
         }
     },
 
+    clearTrackedZones: () => set({ trackedZones: [] }),
+
+    setZoneLoading: (zoneId, isLoading) => {
+        const current = get().loadingZones;
+        if (isLoading) {
+            if (!current.includes(zoneId)) set({ loadingZones: [...current, zoneId] });
+        } else {
+            set({ loadingZones: current.filter(id => id !== zoneId) });
+        }
+    },
+
     setZonesData: (data) => set({ zonesData: data, isLoading: false, error: null }),
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error, isLoading: false }),
 }));
+
+// Expose store for testing in Development
+if (import.meta.env.DEV) {
+    // @ts-ignore
+    window.gridStore = useGridStore;
+}

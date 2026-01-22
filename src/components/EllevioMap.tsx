@@ -3,11 +3,13 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import zonesGeoJson from '../assets/data/zones.json';
 import { useGridStore } from '../store/useGridStore';
+import { ZONE_EIC_MAPPINGS } from '../services/EntsoeService';
 import L from 'leaflet';
 
 // Leaflet Icon Fix
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
 let DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -34,15 +36,23 @@ export const EllevioMap: React.FC = () => {
 
         const zoneData = zonesData.find(z => z.id === zoneId);
         const isTracked = trackedZones.includes(zoneId);
+        const isSupported = zoneData?.isSupported !== false;
 
         const price = zoneData?.price || 0;
 
         // Color logic
         let fillColor = '#e2e8f0';
+        let fillOpacity = isTracked ? 0.7 : 0.4;
+
         if (zoneData) {
-            if (price < 40) fillColor = '#a7f3d0';
-            else if (price < 60) fillColor = '#fde047';
-            else fillColor = '#fca5a5';
+            if (!isSupported) {
+                fillColor = '#94a3b8'; // Darker gray for unavailable
+                fillOpacity = 0.2;
+            } else {
+                if (price < 40) fillColor = '#a7f3d0';
+                else if (price < 60) fillColor = '#fde047';
+                else fillColor = '#fca5a5';
+            }
         }
 
         return {
@@ -51,12 +61,14 @@ export const EllevioMap: React.FC = () => {
             opacity: 1,
             color: isTracked ? '#2563eb' : '#94a3b8',
             dashArray: isTracked ? '' : '3',
-            fillOpacity: isTracked ? 0.7 : 0.4
+            fillOpacity: fillOpacity
         };
     };
 
     const onEachFeature = (feature: any, layer: any) => {
         const zoneId = feature.properties.zoneName || feature.id;
+        // Check static mapping for immediate interaction feedback/logic
+        const isSupported = !!ZONE_EIC_MAPPINGS[zoneId];
 
         layer.bindTooltip(feature.properties.zoneName || feature.properties.name, {
             permanent: false,
@@ -66,7 +78,9 @@ export const EllevioMap: React.FC = () => {
 
         layer.on({
             click: () => {
-                toggleTrackedZone(zoneId);
+                if (isSupported) {
+                    toggleTrackedZone(zoneId);
+                }
             },
             mouseover: (e: any) => {
                 const l = e.target;
@@ -96,7 +110,7 @@ export const EllevioMap: React.FC = () => {
 
                 {geoData && (
                     <GeoJSON
-                        key={trackedZones.join(',')} // Key valid to force re-render style on selection change
+                        key={trackedZones.join(',')} // Force re-render on selection
                         data={geoData}
                         style={style}
                         onEachFeature={onEachFeature}

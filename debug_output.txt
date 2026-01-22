@@ -1,0 +1,184 @@
+
+Running 3 tests using 3 workers
+
+Verified zone price: 66.39
+  ✓  1 [chromium] › tests/data-integrity.spec.ts:52:5 › Data Integrity & Consistency › Zone List should display valid number prices (2.5s)
+Fetching verification data from ENTSO-E for 202601220000...
+  ✓  3 [chromium] › tests/data-integrity.spec.ts:74:5 › Data Integrity & Consistency › Selection State Consistency (2.6s)
+Expected Price for hour 9: 83.57
+BROWSER_LOG: [vite] connecting...
+BROWSER_LOG: [vite] connected.
+BROWSER_LOG: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE4
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE3
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for AT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for BE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for BG
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for CH
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for CZ
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DK-DK1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DK-DK2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for EE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for ES
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for FI
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for FR
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for GB
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for GR
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for HU
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for IE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for LT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for LV
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NL
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO3
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO4
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO5
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for PL
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for PT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for RO
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SK
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE4
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE3
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for AT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for BE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for BG
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for CH
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for CZ
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DK-DK1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DK-DK2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for EE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for ES
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for FI
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for FR
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for GB
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for GR
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for HU
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for IE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for LT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for LV
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NL
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO3
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO4
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO5
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for PL
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for PT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for RO
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SK
+BROWSER_LOG: %c[QA Audit] Accessibility Monitoring Active color: #00D155; font-weight: bold;
+BROWSER_LOG: %cNew axe issues color:#d93251;font-weight:normal;
+BROWSER_LOG: %c%s: %c%s %s color:#d93251;font-weight:bold; critical font-color:black;font-weight:normal; Buttons must have discernible text https://dequeuniversity.com/rules/axe/4.11/button-name?application=axeAPI
+BROWSER_LOG: Element: %o JSHandle@node
+BROWSER_LOG: HTML: %c%s font-weight:bold;font-family:Courier; <button class="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 bg-blue-600 text-white">
+BROWSER_LOG: Fix any of the following:
+  Element does not have inner text that is visible to screen readers
+  aria-label attribute does not exist or is empty
+  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+  Element has no title attribute
+  Element does not have an implicit (wrapped) <label>
+  Element does not have an explicit <label>
+  Element's default semantics were not overridden with role="none" or role="presentation"
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Heading levels should only increase by one https://dequeuniversity.com/rules/axe/4.11/heading-order?application=axeAPI
+BROWSER_LOG: Element: %o JSHandle@node
+BROWSER_LOG: HTML: %c%s font-weight:bold;font-family:Courier; <h3 class="text-sm font-bold text-slate-800 mb-1">Välj Zoner</h3>
+BROWSER_LOG: Fix any of the following:
+  Heading order invalid
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: %c%s: %c%s %s color:#d93251;font-weight:bold; critical font-color:black;font-weight:normal; Form elements must have labels https://dequeuniversity.com/rules/axe/4.11/label?application=axeAPI
+BROWSER_LOG: Element: %o JSHandle@node
+BROWSER_LOG: HTML: %c%s font-weight:bold;font-family:Courier; <input min="-24" max="24" step="1" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600 hover:accent-green-500 z-10 transition-all" type="range" value="0">
+BROWSER_LOG: Fix any of the following:
+  Element does not have an implicit (wrapped) <label>
+  Element does not have an explicit <label>
+  aria-label attribute does not exist or is empty
+  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+  Element has no title attribute
+  Element has no placeholder attribute
+  Element's default semantics were not overridden with role="none" or role="presentation"
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; All page content should be contained by landmarks https://dequeuniversity.com/rules/axe/4.11/region?application=axeAPI
+BROWSER_LOG: Element: %o JSHandle@node
+BROWSER_LOG: HTML: %c%s font-weight:bold;font-family:Courier; <h3 class="text-sm font-bold text-slate-800 mb-1">Välj Zoner</h3>
+BROWSER_LOG: Fix any of the following:
+  Some page content is not contained by landmarks
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: Element: %o JSHandle@node
+BROWSER_LOG: HTML: %c%s font-weight:bold;font-family:Courier; <p class="text-xs text-slate-500">Klicka på kartan för att övervaka områden.</p>
+BROWSER_LOG: Fix any of the following:
+  Some page content is not contained by landmarks
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: console.groupEnd
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE3
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SE-SE1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for AT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for BE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for BG
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for CH
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for CZ
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DK-DK1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for DK-DK2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for EE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for ES
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for FI
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for FR
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for GB
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for GR
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for HU
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for IE
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for LT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for LV
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NL
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO1
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO2
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO3
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO4
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for NO-NO5
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for PL
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for PT
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for RO
+BROWSER_LOG: BROWSER_DEBUG_MOCK: Generating mock data for SK
+BROWSER_LOG: [EntsoeService] Fetching URL: http://localhost:5173/entsoe-api?securityToken=e97c413d-8607-4301-86c7-45641ccc116c&documentType=A44&in_Domain=10Y1001A1001A47J&out_Domain=10Y1001A1001A47J&periodStart=202601220000&periodEnd=202601230000
+Displayed Price in App: 66.29
+  ✘  2 [chromium] › tests/data-integrity.spec.ts:92:5 › Data Integrity & Consistency › SE4 should display correct price for current hour (6.0s)
+
+
+  1) [chromium] › tests/data-integrity.spec.ts:92:5 › Data Integrity & Consistency › SE4 should display correct price for current hour 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeCloseTo[2m([22m[32mexpected[39m[2m, [22mprecision[2m)[22m
+
+    Expected: [32m83.57[39m
+    Received: [31m66.29[39m
+
+    Expected precision:    2
+    Expected difference: < [32m0.005[39m
+    Received difference:   [31m17.279999999999987[39m
+
+      181 |         // Allow small floating point diff if necessary, or string match
+      182 |         // The app performs toFixed(2), so we should compare to that.
+    > 183 |         expect(displayedPrice).toBeCloseTo(expectedPrice, 2);
+          |                                ^
+      184 |     });
+      185 |
+      186 | });
+        at /Users/nicodemus/El_Karta_Europa/tests/data-integrity.spec.ts:183:32
+
+    Error Context: test-results/data-integrity-Data-Integr-67553-rect-price-for-current-hour-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/data-integrity.spec.ts:92:5 › Data Integrity & Consistency › SE4 should display correct price for current hour 
+  2 passed (7.6s)

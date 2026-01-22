@@ -1,4 +1,5 @@
 import { ZoneTable } from './ZoneTable';
+import { SmartAssistant } from './SmartAssistant';
 import { useGridStore } from '../store/useGridStore';
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -10,7 +11,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <header className="absolute top-0 left-0 right-0 z-50 p-6 flex justify-between pointer-events-none">
                 <div className="pointer-events-auto bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-sm border border-gray-100">
                     <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a] mb-1">
-                        Svenska Elnätet
+                        Europeiska Kraftnätet
                     </h1>
                     <p className="text-sm text-gray-500">Realtidsövervakning & Prognos</p>
 
@@ -37,6 +38,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <div className="absolute bottom-8 left-8 z-40 pointer-events-auto w-[320px]">
                 <ZoneTable />
             </div>
+
+            <SmartAssistant />
         </div>
     );
 };

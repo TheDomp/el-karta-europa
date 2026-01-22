@@ -18,7 +18,7 @@ interface ComparisonModalProps {
 }
 
 export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClose }) => {
-    const { zonesData, trackedZones } = useGridStore();
+    const { zonesData, trackedZones, loadingZones } = useGridStore();
     const [viewMode, setViewMode] = useState<'consumption' | 'price' | 'mix'>('mix');
 
     // Filter data for tracked zones
@@ -30,6 +30,7 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClos
     const chartData = compareData.map(z => ({
         name: z.id,
         price: z.price,
+        isLoading: loadingZones.includes(z.id),
         load: z.load,
         nuclear: z.generationMix?.nuclear || 0,
         hydro: z.generationMix?.hydro || 0,
@@ -89,11 +90,67 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClos
                             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
+                            <XAxis
+                                dataKey="name"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={({ x, y, payload }) => {
+                                    const item = chartData.find(d => d.name === payload.value);
+                                    if (item?.isLoading) {
+                                        return (
+                                            <g transform={`translate(${x},${y})`}>
+                                                <foreignObject x="-10" y="0" width="20" height="20">
+                                                    <div className="animate-spin text-blue-500">
+                                                        <Zap size={14} className="opacity-50" />
+                                                    </div>
+                                                </foreignObject>
+                                            </g>
+                                        );
+                                    }
+                                    return (
+                                        <text x={x} y={y} dy={16} textAnchor="middle" fill="#64748b" fontSize={12}>
+                                            {payload.value}
+                                        </text>
+                                    );
+                                }}
+                                dy={10}
+                            />
                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                             <Tooltip
                                 cursor={{ fill: '#f8fafc' }}
-                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                content={({ active, payload, label }) => {
+                                    if (active && payload && payload.length) {
+                                        const data = payload[0].payload;
+                                        if (data.isLoading) {
+                                            return (
+                                                <div className="bg-white p-3 rounded-xl shadow-lg border border-gray-100">
+                                                    <p className="font-bold text-slate-800 mb-1">{label}</p>
+                                                    <div className="flex items-center gap-2 text-blue-500 text-sm">
+                                                        <div className="animate-spin"><Zap size={12} /></div>
+                                                        Hämtar data...
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return (
+                                            <div className="bg-white p-3 rounded-xl shadow-lg border border-gray-100">
+                                                <p className="font-bold text-slate-800 mb-2">{label}</p>
+                                                {payload.map((entry: any) => (
+                                                    <div key={entry.name} className="flex justify-between gap-4 text-xs mb-1">
+                                                        <span style={{ color: entry.color }}>{entry.name}:</span>
+                                                        <span className="font-mono font-medium">
+                                                            {(entry.name.includes("Spotpris") && (entry.value === 0 || entry.value === null))
+                                                                ? "Data saknas"
+                                                                : `${entry.value.toFixed(1)} ${entry.unit || ''}`
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                }}
                             />
                             <Legend wrapperStyle={{ paddingTop: '20px' }} />
 

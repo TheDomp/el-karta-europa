@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useGridStore } from '../store/useGridStore';
-import { ChevronRight, PlusCircle, BarChart2 } from 'lucide-react';
+import { ChevronRight, PlusCircle, BarChart2, Trash2 } from 'lucide-react';
 import { ComparisonModal } from './ComparisonModal';
 
 export const ZoneTable: React.FC = () => {
-    const { zonesData, trackedZones, setZone, selectedZone } = useGridStore();
+    const { zonesData, trackedZones, setZone, selectedZone, clearTrackedZones } = useGridStore();
     const [isCompareOpen, setIsCompareOpen] = useState(false);
 
     // Only show zones that are in the tracked list
@@ -27,15 +27,24 @@ export const ZoneTable: React.FC = () => {
             <div className="bg-white/90 backdrop-blur-md border border-gray-100 rounded-xl overflow-hidden shadow-sm max-h-[60vh] overflow-y-auto">
                 <div className="p-3 border-b border-gray-100 bg-gray-50/50 sticky top-0 backdrop-blur-md z-10 flex justify-between items-center">
                     <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Valda Marknadszoner</h3>
-                    {visibleData.length >= 2 && (
+                    <div className="flex gap-1">
+                        {visibleData.length >= 2 && (
+                            <button
+                                onClick={() => setIsCompareOpen(true)}
+                                className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                            >
+                                <BarChart2 size={12} />
+                                JÄMFÖR
+                            </button>
+                        )}
                         <button
-                            onClick={() => setIsCompareOpen(true)}
-                            className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                            onClick={clearTrackedZones}
+                            className="text-[10px] font-bold text-red-400 hover:text-red-500 hover:bg-red-50 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                            title="Rensa alla"
                         >
-                            <BarChart2 size={12} />
-                            JÄMFÖR
+                            <Trash2 size={12} />
                         </button>
-                    )}
+                    </div>
                 </div>
                 <div className="divide-y divide-gray-50">
                     {visibleData.map((zone) => (
