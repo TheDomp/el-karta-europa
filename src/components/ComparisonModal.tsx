@@ -165,7 +165,7 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClos
                                                     return (
                                                         <div key={entry.name} className="flex justify-between gap-4 text-xs mb-1">
                                                             <span style={{ color: entry.color }}>{entry.name}:</span>
-                                                            <span className="font-mono font-medium whitespace-nowrap">
+                                                            <span className="font-mono font-medium whitespace-nowrap text-slate-700">
                                                                 {isMissing ? "Data saknas" : `${value.toFixed(1)}${unit}`}
                                                             </span>
                                                         </div>
