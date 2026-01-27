@@ -135,17 +135,29 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClos
                                         return (
                                             <div className="bg-white p-3 rounded-xl shadow-lg border border-gray-100">
                                                 <p className="font-bold text-slate-800 mb-2">{label}</p>
-                                                {payload.map((entry: any) => (
-                                                    <div key={entry.name} className="flex justify-between gap-4 text-xs mb-1">
-                                                        <span style={{ color: entry.color }}>{entry.name}:</span>
-                                                        <span className="font-mono font-medium">
-                                                            {(entry.name.includes("Spotpris") && (entry.value === 0 || entry.value === null))
-                                                                ? "Data saknas"
-                                                                : `${entry.value.toFixed(1)} ${entry.unit || ''}`
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                ))}
+                                                {payload.map((entry: any) => {
+                                                    // For stacked bars, the value might be a range array [start, end].
+                                                    // We want the absolute value from the data payload.
+                                                    const rawValue = entry.payload[entry.dataKey];
+                                                    const value = typeof rawValue === 'number' ? rawValue : 0;
+
+                                                    // Determine unit based on view mode
+                                                    let unit = '';
+                                                    if (viewMode === 'mix') unit = '%';
+                                                    else if (viewMode === 'price') unit = ' €/MWh';
+                                                    else if (viewMode === 'consumption') unit = ' MW';
+
+                                                    const isMissing = viewMode === 'price' && value === 0;
+
+                                                    return (
+                                                        <div key={entry.name} className="flex justify-between gap-4 text-xs mb-1">
+                                                            <span style={{ color: entry.color }}>{entry.name}:</span>
+                                                            <span className="font-mono font-medium">
+                                                                {isMissing ? "Data saknas" : `${value.toFixed(1)}${unit}`}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         );
                                     }

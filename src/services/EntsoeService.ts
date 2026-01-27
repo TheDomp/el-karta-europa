@@ -187,8 +187,15 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
             nuclear: 0, hydro: 0, wind: 0, solar: 0, gas: 0, coal: 0, other: 0
         };
 
+        // Determine Resolution to calculate point index
+        // Resolution is usually PT60M (1h) or PT15M (15min)
+        const resolutionStr = doc.querySelector('Period > resolution')?.textContent || 'PT60M';
+        const resolutionMinutes = resolutionStr.includes('PT15M') ? 15 : 60;
+        const pointsPerHour = 60 / resolutionMinutes;
+
         // Current Hour index (0-23)
         const currentHour = new Date().getHours();
+        const targetPointIndex = (currentHour * pointsPerHour) + 1; // 1-based index
 
         timeSeriesList.forEach(ts => {
             const psrType = ts.querySelector('MktPSRType > psrType')?.textContent;
@@ -196,9 +203,8 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
 
             const category = PSR_TYPE_MAPPING[psrType] || 'other';
 
-            // Get value for current hour
-            // Points are 1-based usually
-            const point = ts.querySelector(`Period > Point:nth-of-type(${currentHour + 1})`);
+            // Find point matching current hour
+            const point = ts.querySelector(`Period > Point:nth-of-type(${targetPointIndex})`);
             const quantity = point?.getElementsByTagName('quantity')[0]?.textContent;
 
             if (quantity) {
