@@ -136,8 +136,21 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClos
                                             <div className="bg-white p-3 rounded-xl shadow-lg border border-gray-100">
                                                 <p className="font-bold text-slate-800 mb-2">{label}</p>
                                                 {payload.map((entry: any) => {
-                                                    // Use entry.value which is reliably populated by Recharts
-                                                    const rawValue = entry.value;
+                                                    // Map display names back to data keys to ensure we get the correct raw value
+                                                    // This handles stacked bars correctly where entry.value might be weird.
+                                                    const nameToKey: Record<string, string> = {
+                                                        'Vattenkraft': 'hydro',
+                                                        'Vindkraft': 'wind',
+                                                        'Solkraft': 'solar',
+                                                        'Kärnkraft': 'nuclear',
+                                                        'Gas/Olja': 'gas',
+                                                        'Övrigt': 'other',
+                                                        'Spotpris (€/MWh)': 'price',
+                                                        'Förbrukning (MW)': 'load'
+                                                    };
+
+                                                    const key = nameToKey[entry.name] || entry.dataKey;
+                                                    const rawValue = entry.payload[key];
                                                     const value = (typeof rawValue === 'number' && !isNaN(rawValue)) ? rawValue : 0;
 
                                                     // Determine unit based on view mode
@@ -146,6 +159,7 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({ isOpen, onClos
                                                     else if (viewMode === 'price') unit = ' €/MWh';
                                                     else if (viewMode === 'consumption') unit = ' MW';
 
+                                                    // Only show "Data saknas" for price being 0. For mix, 0% is valid.
                                                     const isMissing = viewMode === 'price' && value === 0;
 
                                                     return (
