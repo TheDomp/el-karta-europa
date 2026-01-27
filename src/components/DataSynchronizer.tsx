@@ -49,7 +49,9 @@ export const DataSynchronizer = () => {
                                 console.warn(`[DataSynchronizer] Mix missing for ${id}, using fallback`);
                             }
 
-                            const mix = realMix || MockDataService.getEmptyMix();
+                            // If realMix is null, fallback to generated mock mix instead of empty mix
+                            // so charts are not empty if we have price data.
+                            const mix = realMix || MockDataService.generateMockData(id, hour, isChaosEnabled).generationMix;
 
                             // Load is still often mocked if not available, keeping simple random for now as in original
                             const load = 5000 + (Math.random() * 5000);
