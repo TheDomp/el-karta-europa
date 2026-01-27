@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useGridStore } from '../store/useGridStore';
 import { Clock, RotateCcw } from 'lucide-react';
 import { format, addHours, differenceInHours } from 'date-fns';
+import { motion } from 'framer-motion';
 
 export const TimeSlider: React.FC = () => {
     const { currentTime, timeMode, setTime } = useGridStore();
@@ -21,44 +22,54 @@ export const TimeSlider: React.FC = () => {
     const currentOffset = differenceInHours(currentTime, simulationBase);
 
     return (
-        <div className="bg-white/90 p-4 rounded-xl flex items-center gap-4 backdrop-blur-md border border-gray-200 shadow-lg">
-            <button
+        <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="glass p-5 rounded-3xl flex items-center gap-6 shadow-2xl"
+        >
+            <motion.button
+                whileHover={{ scale: 1.1, rotate: -90 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setTime(new Date())}
-                className="p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all border border-gray-200 group text-slate-500 hover:text-slate-800"
+                className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5 group text-gray-400 hover:text-white"
                 title="Återställ till Realtid"
             >
-                <RotateCcw size={18} />
-            </button>
+                <RotateCcw size={20} />
+            </motion.button>
 
-            <div className="flex-1 flex flex-col gap-2">
-                <div className="flex justify-between px-1 text-slate-400">
-                    <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Igår</span>
-                    <span className={`text-[10px] font-bold uppercase tracking-widest leading-none ${timeMode === 'LIVE' ? 'text-green-600 mr-4' : 'text-slate-400'}`}>Live</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Imorgon</span>
+            <div className="flex-1 flex flex-col gap-3">
+                <div className="flex justify-between px-1">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Förflutet</span>
+                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${timeMode === 'LIVE' ? 'text-green-500 glow-green' : 'text-gray-600'}`}>Live Now</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Prognos</span>
                 </div>
 
-                <input
-                    type="range"
-                    min="-24"
-                    max="24"
-                    step="1"
-                    value={currentOffset}
-                    onChange={handleSliderChange}
-                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600 hover:accent-green-500 z-10 transition-all"
-                />
+                <div className="relative flex items-center">
+                    <input
+                        type="range"
+                        min="-24"
+                        max="24"
+                        step="1"
+                        value={currentOffset}
+                        onChange={handleSliderChange}
+                        className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 z-10 transition-all outline-none"
+                    />
+                    <div className="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-white/10 pointer-events-none" />
+                </div>
             </div>
 
-            <div className="text-right min-w-[100px] border-l border-gray-100 pl-4 ml-2">
-                <div className="flex items-center justify-end gap-1.5 mb-0.5">
-                    <Clock size={14} className="text-green-600" />
-                    <span className="text-xl font-mono font-bold text-slate-800 tabular-nums">
+            <div className="text-right min-w-[120px] border-l border-white/5 pl-6">
+                <div className="flex items-center justify-end gap-2 mb-1">
+                    <Clock size={16} className="text-blue-500" />
+                    <span className="text-2xl font-mono font-black text-white tabular-nums tracking-tighter">
                         {format(currentTime, 'HH:mm')}
                     </span>
                 </div>
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">
+                <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
                     {format(currentTime, 'EEE dd MMM')}
                 </p>
             </div>
-        </div>
+        </motion.div>
     );
 };

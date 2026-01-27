@@ -26,12 +26,16 @@ export const createEnergyOverlayClass = (googleMaps: typeof google.maps) => {
             this.scene = new THREE.Scene();
             this.camera = new THREE.PerspectiveCamera();
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
             this.scene.add(ambientLight);
 
-            const pointLight = new THREE.PointLight(0xffffff, 0.8);
-            pointLight.position.set(0, 50, 50);
+            const pointLight = new THREE.PointLight(0xffffff, 1.5);
+            pointLight.position.set(20, 100, 100);
             this.scene.add(pointLight);
+
+            const spotLight = new THREE.SpotLight(0x3b82f6, 5);
+            spotLight.position.set(-50, 50, 50);
+            this.scene.add(spotLight);
         }
 
         onAdd() {
@@ -43,12 +47,15 @@ export const createEnergyOverlayClass = (googleMaps: typeof google.maps) => {
                 canvas: gl.canvas,
                 context: gl,
                 ...gl.getContextAttributes(),
+                antialias: true,
+                alpha: true
             });
             this.renderer.autoClear = false;
+            this.renderer.toneMapping = THREE.ReinhardToneMapping;
+            this.renderer.toneMappingExposure = 1.2;
         }
 
         onDraw(options: google.maps.WebGLDrawOptions) {
-            // Center on Sweden roughly
             const matrix = options.transformer.fromLatLngAltitude({
                 lat: 62.0,
                 lng: 16.0,
@@ -68,7 +75,6 @@ export const createEnergyOverlayClass = (googleMaps: typeof google.maps) => {
         }
 
         private create3DObjects() {
-            // Clear existing
             this.meshes.forEach(mesh => this.scene.remove(mesh));
             this.meshes.clear();
 
@@ -84,26 +90,28 @@ export const createEnergyOverlayClass = (googleMaps: typeof google.maps) => {
 
                 const extrudeSettings = {
                     steps: 1,
-                    depth: 0.1, // Base height
-                    bevelEnabled: false,
+                    depth: 0.05,
+                    bevelEnabled: true,
+                    bevelThickness: 0.02,
+                    bevelSize: 0.02,
+                    bevelOffset: 0,
+                    bevelSegments: 3
                 };
 
                 const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0xcccccc,
+                const material = new THREE.MeshStandardMaterial({
+                    color: 0x222222,
                     transparent: true,
-                    opacity: 0.8,
+                    opacity: 0.9,
+                    metalness: 0.8,
+                    roughness: 0.2,
+                    emissive: 0x000000,
+                    emissiveIntensity: 0.5
                 });
 
                 const mesh = new THREE.Mesh(geometry, material);
                 this.scene.add(mesh);
                 this.meshes.set(feature.id, mesh);
-
-                // Rotation to match map coordinates might be needed or handled by transformer
-                // Google Maps WebGL typically matches Three.js Y-up if using transformer correctly,
-                // but sometimes shapes need rotation if defined in lat/lng directly mapped to x/y.
-                // For simplicity assuming direct mapping or slight adjustment:
-                // mesh.rotation.x = -Math.PI / 2; // Flat on map
             });
 
             this.updateMeshes();
@@ -116,11 +124,14 @@ export const createEnergyOverlayClass = (googleMaps: typeof google.maps) => {
                     const { index, level } = calculateGridStress(zone.price, zone.load);
                     const color = getStressColor(level);
 
-                    // Height = Stress
-                    const scale = 1 + (index / 100) * 5; // Scale height
-                    mesh.scale.setZ(scale); // Assuming extrusion is on Z or Y depending on orientation
+                    // Height = Stress (more pronounced)
+                    const targetScale = 1 + (index / 100) * 8;
+                    mesh.scale.setZ(targetScale);
 
-                    (mesh.material as THREE.MeshPhongMaterial).color.set(color);
+                    const material = mesh.material as THREE.MeshStandardMaterial;
+                    material.color.set(color);
+                    material.emissive.set(color);
+                    material.emissiveIntensity = index / 100 + 0.2;
                 }
             });
         }

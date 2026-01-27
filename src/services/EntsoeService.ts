@@ -1,20 +1,10 @@
 // src/services/EntsoeService.ts
 import { addDays, format } from 'date-fns';
+import type { GenerationMix } from '../store/useGridStore';
+
 
 // Types
-export interface EntsoeDataPoint {
-    position: number;
-    price?: number;
-    load?: number;
-    generation?: number;
-}
 
-export interface ZoneData {
-    zoneId: string;
-    prices: number[]; // 24h array
-    load: number[];   // 24h array
-    timestamp: string;
-}
 
 // Chaos Configuration
 export const ChaosConfig = {
@@ -155,7 +145,16 @@ const PSR_TYPE_MAPPING: Record<string, string> = {
 /**
  * Fetches Generation Mix (Document Type: A75 - Actual Generation per Type)
  */
-export async function fetchGenerationMix(zoneId: string, date: Date = new Date()): Promise<any> {
+
+
+// ... (imports remain)
+
+// ... (previous code)
+
+/**
+ * Fetches Generation Mix (Document Type: A75 - Actual Generation per Type)
+ */
+export async function fetchGenerationMix(zoneId: string, date: Date = new Date()): Promise<GenerationMix | null> {
     await applyChaos();
 
     const periodStart = format(date, "yyyyMMdd") + "0000";
@@ -205,7 +204,6 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
             if (quantity) {
                 const val = parseFloat(quantity);
                 if (!isNaN(val)) {
-                    // @ts-ignore
                     mix[category] = (mix[category] || 0) + val;
                 }
             }
@@ -215,14 +213,13 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
         const total = Object.values(mix).reduce((a, b) => a + b, 0);
         if (total === 0) return null; // No data found
 
-        const percentages = { ...mix };
+        const percentages: Record<string, number> = { ...mix };
         Object.keys(percentages).forEach(k => {
-            // @ts-ignore
             percentages[k] = Math.round((percentages[k] / total) * 100);
         });
 
         // Normalize to exactly 100? No need for now, close enough
-        return percentages;
+        return percentages as unknown as GenerationMix;
 
     } catch (err) {
         console.error("Fetch Mix Failed:", err);

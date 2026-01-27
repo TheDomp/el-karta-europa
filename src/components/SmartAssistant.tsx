@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGridStore } from '../store/useGridStore';
-import { Send, MessageSquare, X, Bot } from 'lucide-react';
+import { Send, MessageSquare, X, Bot, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
     id: string;
@@ -31,54 +32,21 @@ export const SmartAssistant: React.FC = () => {
         if (isOpen) scrollToBottom();
     }, [messages, isOpen]);
 
-    const findCountryName = (id: string) => {
-        if (id.startsWith('SE-')) return 'Sverige';
-        if (id.startsWith('DK-')) return 'Danmark';
-        if (id.startsWith('NO-')) return 'Norge';
-        if (id.startsWith('IT-')) return 'Italien';
-        if (id.startsWith('FI')) return 'Finland';
-        if (id.startsWith('DE')) return 'Tyskland';
-        if (id.startsWith('FR')) return 'Frankrike';
-        if (id.startsWith('ES')) return 'Spanien';
-        return id;
+    const [isTyping, setIsTyping] = useState(false);
+
+    const getContextData = () => {
+        if (!zonesData || zonesData.length === 0) return "Ingen data på kartan just nu.";
+        return zonesData
+            .filter(z => z.price > 0)
+            .map(z => ({
+                id: z.id,
+                p: z.price.toFixed(1),
+                l: (z.load / 1000).toFixed(1) + "GW",
+                w: z.windGeneration ? (z.windGeneration / 1000).toFixed(1) + "GW" : undefined
+            }));
     };
 
-    const analyzeQuestion = (q: string): string => {
-        const query = q.toLowerCase();
-
-        if (zonesData.length === 0) {
-            return "Jag väntar fortfarande på att all data ska laddas in. Fråga mig igen om en liten stund!";
-        }
-
-        // 1. Cheapest
-        if (query.includes('billigast') || query.includes('lägst pris') || query.includes('reast')) {
-            const cheapest = [...zonesData].sort((a, b) => a.price - b.price)[0];
-            return `Just nu är elen billigast i **${findCountryName(cheapest.id)} (${cheapest.id})** med ett pris på **${cheapest.price.toFixed(2)} €/MWh**. 📉`;
-        }
-
-        // 2. Most Expensive
-        if (query.includes('dyrast') || query.includes('högst pris')) {
-            const expensive = [...zonesData].sort((a, b) => b.price - a.price)[0];
-            return `Priserna är som högst i **${findCountryName(expensive.id)} (${expensive.id})**, där det kostar **${expensive.price.toFixed(2)} €/MWh** just nu. 📈`;
-        }
-
-        // 3. Highest Load
-        if (query.includes('mest el') || query.includes('förbrukning') || query.includes('drar mest')) {
-            const sortedByLoad = [...zonesData].sort((a, b) => b.load - a.load)[0];
-            return `**${findCountryName(sortedByLoad.id)} (${sortedByLoad.id})** har den högsta förbrukningen just nu med ca **${(sortedByLoad.load / 1000).toFixed(1)} GW**.`;
-        }
-
-        // 4. Windy/Green
-        if (query.includes('vind') || query.includes('grön') || query.includes('miljö')) {
-            const sortedByWind = [...zonesData].sort((a, b) => (b.windGeneration || 0) - (a.windGeneration || 0))[0];
-            return `Blåsigast är det i **${findCountryName(sortedByWind.id)}**, vilket ger bra vindproduktion! 🌬️`;
-        }
-
-        // 5. Help/Default
-        return "Jag kan svara på frågor som: \n• 'Var är det billigast?' \n• 'Vilka drar mest el?' \n• 'Var är det dyrast?' \n• 'Hur ser vindkraften ut?'";
-    };
-
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
         const userMsg: Message = {
@@ -90,102 +58,167 @@ export const SmartAssistant: React.FC = () => {
 
         setMessages(prev => [...prev, userMsg]);
         setInput('');
+        setIsTyping(true);
 
-        // Simulate AI thinking
-        setTimeout(() => {
+        try {
+            const res = await fetch('http://localhost:3001/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: userMsg.text,
+                    context: getContextData()
+                })
+            });
+
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
             const aiResponse: Message = {
                 id: (Date.now() + 1).toString(),
-                text: analyzeQuestion(input),
+                text: data.reply || "Kunde inte generera ett svar.",
                 sender: 'ai',
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, aiResponse]);
-        }, 600);
+        } catch (error) {
+            console.error(error);
+            const errorMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "⚠️ Kunde inte nå AI-tjänsten. Kontrollera att servern rullar och API-nyckeln är satt.",
+                sender: 'ai',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            setIsTyping(false);
+        }
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999]">
-            {/* Chat Window */}
-            {isOpen && (
-                <div className="absolute bottom-16 right-0 w-80 sm:w-96 bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 h-[450px]">
-                    {/* Header */}
-                    <div className="bg-blue-600 p-4 flex justify-between items-center text-white">
-                        <div className="flex items-center gap-2">
-                            <Bot size={20} />
-                            <div>
-                                <h3 className="text-sm font-bold">Energi AI</h3>
-                                <div className="flex items-center gap-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                                    <span className="text-[10px] opacity-80">Analyserar Live-data</span>
+        <div className="fixed bottom-10 right-10 z-[10000]">
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="absolute bottom-20 right-0 w-80 sm:w-96 glass rounded-3xl flex flex-col overflow-hidden shadow-2xl h-[500px]"
+                    >
+                        {/* Header */}
+                        <div className="bg-blue-600 p-5 flex justify-between items-center text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 opacity-10 -rotate-12 translate-x-4 -translate-y-4">
+                                <Bot size={120} />
+                            </div>
+                            <div className="flex items-center gap-3 relative z-10">
+                                <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md">
+                                    <Sparkles size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-black uppercase tracking-widest">Energi AI</h3>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                        <span className="text-[10px] font-bold opacity-70 uppercase tracking-tighter">Live Analysis</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <button onClick={() => setIsOpen(false)} className="hover:opacity-70">
-                            <X size={20} />
-                        </button>
-                    </div>
-
-                    {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                        {messages.map(m => (
-                            <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed ${m.sender === 'user'
-                                    ? 'bg-blue-600 text-white rounded-tr-none'
-                                    : 'bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200 shadow-sm'
-                                    }`}>
-                                    {m.text.split('\n').map((line, i) => (
-                                        <p key={i} className={i > 0 ? 'mt-1' : ''}>{line}</p>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input */}
-                    <div className="p-4 bg-white/50 border-t border-slate-200">
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Ställ en fråga..."
-                                className="flex-1 bg-white border border-slate-200 rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm"
-                            />
-                            <button
-                                onClick={handleSend}
-                                className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
-                            >
-                                <Send size={14} />
+                            <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-2 rounded-xl transition-colors relative z-10">
+                                <X size={20} />
                             </button>
                         </div>
-                        <div className="mt-2 flex gap-2 overflow-x-auto pb-1 invisible-scrollbar">
-                            {['Billigast?', 'Vindkraft?', 'Högst last?'].map(chip => (
-                                <button
-                                    key={chip}
-                                    onClick={() => setInput(chip)}
-                                    className="whitespace-nowrap px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-full text-[10px] text-slate-500 transition-colors border border-slate-200"
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-black/20">
+                            {messages.map(m => (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    key={m.id}
+                                    className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
-                                    {chip}
-                                </button>
+                                    <div className={`max-w-[85%] p-4 rounded-3xl text-xs leading-relaxed ${m.sender === 'user'
+                                        ? 'bg-blue-600 text-white rounded-tr-none shadow-lg shadow-blue-500/20'
+                                        : 'glass rounded-tl-none text-gray-200'
+                                        }`}>
+                                        {m.text.split('\n').map((line, i) => (
+                                            <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
+                                        ))}
+                                    </div>
+                                </motion.div>
                             ))}
+                            {isTyping && (
+                                <div className="flex justify-start">
+                                    <div className="glass p-4 rounded-3xl rounded-tl-none">
+                                        <div className="flex gap-1.5">
+                                            {[0, 0.15, 0.3].map(delay => (
+                                                <motion.div
+                                                    key={delay}
+                                                    animate={{ y: [0, -5, 0] }}
+                                                    transition={{ duration: 0.6, repeat: Infinity, delay }}
+                                                    className="w-1.5 h-1.5 bg-blue-400 rounded-full"
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
                         </div>
-                    </div>
-                </div>
-            )}
+
+                        {/* Input */}
+                        <div className="p-5 border-t border-white/5 bg-white/5 backdrop-blur-md">
+                            <div className="flex gap-3">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                    placeholder="Fråga om marknadsläget..."
+                                    className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-gray-600"
+                                />
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleSend}
+                                    className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-500 transition-colors shadow-xl shadow-blue-500/20"
+                                >
+                                    <Send size={18} />
+                                </motion.button>
+                            </div>
+                            <div className="mt-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                                {['Prisläget?', 'Vindkraft?', 'Analysera?'].map(chip => (
+                                    <button
+                                        key={chip}
+                                        onClick={() => setInput(chip)}
+                                        className="whitespace-nowrap px-4 py-2 glass hover:bg-white/10 rounded-xl text-[10px] font-bold text-gray-400 hover:text-white transition-all border border-white/5"
+                                    >
+                                        {chip}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Floating Button */}
-            <button
+            <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 ${isOpen ? 'bg-slate-800 text-white' : 'bg-blue-600 text-white'
+                className={`w-16 h-16 rounded-3xl flex items-center justify-center shadow-2xl transition-all ${isOpen ? 'bg-white text-black' : 'bg-blue-600 text-white shadow-blue-500/40'
                     }`}
             >
-                {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+                {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
                 {!isOpen && (
-                    <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-[3px] border-[#0a0a0b] flex items-center justify-center"
+                    >
+                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                    </motion.div>
                 )}
-            </button>
+            </motion.button>
         </div>
     );
 };
