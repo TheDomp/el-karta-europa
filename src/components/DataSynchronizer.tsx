@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useGridStore } from '../store/useGridStore';
 import zonesGeoJson from '../assets/data/zones.json';
-import { fetchDayAheadPrices, fetchGenerationMix, ZONE_EIC_MAPPINGS } from '../services/EntsoeService';
+import { fetchDayAheadPrices, fetchGenerationMix, fetchLoad, ZONE_EIC_MAPPINGS } from '../services/EntsoeService';
 import { MockDataService } from '../services/MockDataService';
 
 // Extended List including new European Zones
@@ -43,37 +43,67 @@ export const DataSynchronizer = () => {
                                 throw new Error('Price data missing for current hour');
                             }
 
-                            // Fetch Real Mix (or fallback to empty)
+                            // Fetch Real Mix
                             const realMix = await fetchGenerationMix(eicCode, currentTime);
-                            if (!realMix) {
-                                console.warn(`[DataSynchronizer] Mix missing for ${id}, using fallback`);
+                            const mix = realMix || MockDataService.getEmptyMix();
+
+                            // Fetch Real Load
+                            let load = 0;
+                            try {
+                                const loads = await fetchLoad(eicCode, currentTime);
+                                load = loads[hour] || 0;
+                            } catch (loadErr) {
+                                console.warn(`[DataSynchronizer] Load missing for ${id} - returning 0`);
+                                // Keep load as 0 -> "Data missing" check in UI
                             }
 
-                            // If realMix is null, fallback to generated mock mix instead of empty mix
-                            // so charts are not empty if we have price data.
-                            const mix = realMix || MockDataService.generateMockData(id, hour, isChaosEnabled).generationMix;
+                            // Calculate Derived Metrics strictly from data
+                            // 1. Wind Generation (MW) -> Approximate from Load * Mix% if exact Gen MW not available separately
+                            // (Since we only have Mix %, this implies Net Gen ~= Load, which is close enough for display if imports ignored)
+                            const windPct = mix.wind || 0;
+                            const windGeneration = Math.round(load * (windPct / 100));
 
-                            // Load is still often mocked if not available, keeping simple random for now as in original
-                            const load = 5000 + (Math.random() * 5000);
+                            // 2. Carbon Intensity (gCO2/kWh) -> Estimate from Mix
+                            // Factors (IPCC 2014 approx): Coal 820, Gas 490, Oil 650, Nuclear 12, Wind 11, Solar 45, Hydro 24
+                            // Mix has: coal, gas, nuclear, wind, solar, hydro, other (assume other=700)
+                            const ci =
+                                (mix.coal * 820) +
+                                (mix.gas * 490) +
+                                (mix.nuclear * 12) +
+                                (mix.wind * 11) +
+                                (mix.solar * 45) +
+                                (mix.hydro * 24) +
+                                (mix.other * 700);
+                            const carbonIntensity = Math.round(ci / 100);
 
                             return {
                                 id,
                                 price: parseFloat(price.toFixed(2)),
                                 load: Math.round(load),
                                 isSupported: true,
-                                windGeneration: Math.round(1000 + Math.random() * 2000),
-                                carbonIntensity: Math.round(20 + Math.random() * 200),
+                                windGeneration,
+                                carbonIntensity,
                                 generationMix: mix
                             };
                         } catch (e: any) {
-                            console.log(`[DataSynchronizer] Fetch failed for ${id}, falling back to mock.`, e.message || e);
-                            // Fall through to mock logic below
+                            console.error(`[DataSynchronizer] Fetch failed for ${id}:`, e.message || e);
+                            return {
+                                id,
+                                price: 0,
+                                load: 0,
+                                isSupported: false, // Mark as unsupported/error so UI can show "Data Missing"
+                                windGeneration: 0,
+                                carbonIntensity: 0,
+                                generationMix: MockDataService.getEmptyMix()
+                            };
                         } finally {
                             setZoneLoading(id, false);
                         }
                     }
 
                     // 3. FALLBACK / NON-TRACKED ZONES (Mock Logic)
+                    // Keep mock logic ONLY for untracked zones to keep the map looking populated.
+                    // Strict data policy applies to what the user explicitly interacts with (Tracked Zones).
                     return MockDataService.generateMockData(id, hour, isChaosEnabled);
                 }));
 

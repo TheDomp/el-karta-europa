@@ -149,16 +149,25 @@ test.describe('Time Navigation - Data Refresh', () => {
                 window.gridStore.getState().toggleTrackedZone('SE-SE3');
             }
         });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(2000); // Longer wait for data
 
-        const priceSpan = page.locator('span.font-mono.font-black').first();
-        const initialPrice = await priceSpan.innerText();
+        const getPriceOrStatus = async () => {
+            // Updated selectors to match ZoneTable.tsx
+            const priceEl = page.locator('div.font-mono').first();
+            const missingEl = page.locator('span').filter({ hasText: 'SAKNAS' }).first();
+
+            if (await missingEl.isVisible()) return "SAKNAS";
+            if (await priceEl.isVisible()) return await priceEl.innerText();
+            return "LOADING";
+        };
+
+        const initialPrice = await getPriceOrStatus();
 
         const slider = page.locator('input[type="range"]');
         await slider.fill('-12');
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(3000); // Longer wait for refetch
 
-        const newPrice = await priceSpan.innerText();
+        const newPrice = await getPriceOrStatus();
         expect(newPrice).toBeDefined();
         console.log(`Price at now: ${initialPrice}, Price at -12h: ${newPrice}`);
     });

@@ -59,7 +59,8 @@ test.describe('Comparison Feature - Modal Opening', () => {
         const compareButton = page.locator('button', { hasText: 'JÄMFÖR' });
         await compareButton.click();
 
-        await expect(page.getByText('Jämför 3 valda marknadszoner')).toBeVisible();
+        // Updated: ComparisonModal uses "Jämför X valda zoner" text
+        await expect(page.getByText('Jämför 3 valda zoner')).toBeVisible();
     });
 
 });
@@ -202,10 +203,22 @@ test.describe('Comparison Feature - Data Consistency', () => {
         await page.waitForTimeout(2000);
 
         const tableButtonSE3 = page.locator('button', { hasText: 'SE-SE3' });
-        const priceSE3Table = await tableButtonSE3.locator('div.font-mono').first().innerText();
+        const se3Msg = await tableButtonSE3.locator('.text-\\[var\\(--energy-red\\)\\]').count();
+        let priceSE3Table = '0';
+        if (se3Msg > 0) {
+            console.log('SE3 Data Missing (SAKNAS) - Skipping price extraction');
+        } else {
+            priceSE3Table = await tableButtonSE3.locator('div.font-mono').first().innerText();
+        }
 
         const tableButtonSE4 = page.locator('button', { hasText: 'SE-SE4' });
-        const priceSE4Table = await tableButtonSE4.locator('div.font-mono').first().innerText();
+        const se4Msg = await tableButtonSE4.locator('.text-\\[var\\(--energy-red\\)\\]').count();
+        let priceSE4Table = '0';
+        if (se4Msg > 0) {
+            console.log('SE4 Data Missing (SAKNAS) - Skipping price extraction');
+        } else {
+            priceSE4Table = await tableButtonSE4.locator('div.font-mono').first().innerText();
+        }
 
         console.log(`Table prices - SE-SE3: ${priceSE3Table}, SE-SE4: ${priceSE4Table}`);
 

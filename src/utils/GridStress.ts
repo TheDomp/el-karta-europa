@@ -22,9 +22,9 @@ export function calculateGridStress(price: number, load: number, maxLoad: number
 
 export function getStressColor(level: string): string {
     switch (level) {
-        case 'CRITICAL': return '#EF4444'; // Red-500
-        case 'HIGH': return '#F97316';     // Orange-500
-        case 'MODERATE': return '#EAB308'; // Yellow-500
-        default: return '#00D155';         // Ellevio Green
+        case 'CRITICAL': return '#ff3b30'; // --energy-red
+        case 'HIGH': return '#f59e0b';     // Warm Orange
+        case 'MODERATE': return '#ffd700'; // --energy-amber
+        default: return '#00ff9d';         // --energy-green
     }
 }

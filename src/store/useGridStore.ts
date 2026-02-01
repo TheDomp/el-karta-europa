@@ -9,6 +9,7 @@ export interface GenerationMix {
     gas: number;
     coal: number;
     other: number;
+    timestamp?: string; // Time of the data point (e.g. "09:00")
 }
 
 export interface GridZoneData {

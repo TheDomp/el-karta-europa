@@ -5,24 +5,24 @@
   line-height: 1.5;
   font-weight: 400;
 
-  /* Premium Midnight Theme */
-  --bg-primary: #0a0a0b;
-  --bg-secondary: #141416;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  /* Premium Midnight Theme - Deep & Rich */
+  --bg-primary: #050505;
+  --bg-secondary: #0f1014;
+  --text-primary: #e2e8f0;
+  --text-secondary: #64748b;
 
-  /* Vibrant Energy Tokens */
-  --energy-green: #10b981;
+  /* Vibrant Energy Tokens (Neon/Cyberpunk inspired) */
+  --energy-green: #00ff9d;
   /* Cyber Green */
-  --energy-blue: #3b82f6;
-  /* Electric Blue */
-  --energy-amber: #f59e0b;
-  /* Warning Amber */
-  --energy-red: #ef4444;
-  /* Alert Red */
+  --energy-blue: #00bcd4;
+  /* Cyan/Electric Blue */
+  --energy-amber: #ffd700;
+  /* Gold/Amber */
+  --energy-red: #ff3b30;
+  /* Neon Red */
 
-  --glass-bg: rgba(20, 20, 22, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(15, 16, 20, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {

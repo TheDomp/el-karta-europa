@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@modelcontextprotocol/server-google-maps": "^0.6.2"
+  },
+  "_npx": {
+    "packages": [
+      "@modelcontextprotocol/server-google-maps"
+    ]
+  }
+}

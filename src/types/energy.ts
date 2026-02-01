@@ -16,6 +16,7 @@ export interface EnergyData {
   carbonIntensity: number; // gCO2/kWh
   productionMix: ProductionMix;
   timestamp: string;
+  isSupported?: boolean; // For strict data handling (missing vs zero)
 }
 
 export interface BiddingZoneFeature {

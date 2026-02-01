@@ -196,6 +196,8 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
         // Current Hour index (0-23)
         const currentHour = new Date().getHours();
         const targetPointIndex = (currentHour * pointsPerHour) + 1; // 1-based index
+        // Track which position we actually used
+        let finalPosition = targetPointIndex;
 
         timeSeriesList.forEach(ts => {
             const psrType = ts.querySelector('MktPSRType > psrType')?.textContent;
@@ -204,7 +206,20 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
             const category = PSR_TYPE_MAPPING[psrType] || 'other';
 
             // Find point matching current hour
-            const point = ts.querySelector(`Period > Point:nth-of-type(${targetPointIndex})`);
+            let point = ts.querySelector(`Period > Point:nth-of-type(${targetPointIndex})`);
+
+            // Fallback: If data for current hour isn't published yet (realised data reporting lag),
+            // take the last available point in the period.
+            if (!point) {
+                const allPoints = ts.querySelectorAll('Period > Point');
+                if (allPoints.length > 0) {
+                    point = allPoints[allPoints.length - 1];
+                    // Update finalPosition based on this point's position element
+                    const posText = point.getElementsByTagName('position')[0]?.textContent;
+                    if (posText) finalPosition = parseInt(posText);
+                }
+            }
+
             const quantity = point?.getElementsByTagName('quantity')[0]?.textContent;
 
             if (quantity) {
@@ -215,16 +230,25 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
             }
         });
 
+        // Calculate timestamp string
+        // Start is 00:00. Resolution minutes.
+        // Minutes from start = (finalPosition - 1) * resolutionMinutes
+        const totalMinutes = (finalPosition - 1) * resolutionMinutes;
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        const timeString = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+
         // Calculate percentages
         const total = Object.values(mix).reduce((a, b) => a + b, 0);
         if (total === 0) return null; // No data found
 
-        const percentages: Record<string, number> = { ...mix };
+        const percentages: Record<string, any> = { ...mix, timestamp: timeString };
         Object.keys(percentages).forEach(k => {
-            percentages[k] = Math.round((percentages[k] / total) * 100);
+            if (k !== 'timestamp') {
+                percentages[k] = Math.round((percentages[k] / total) * 100);
+            }
         });
 
-        // Normalize to exactly 100? No need for now, close enough
         return percentages as unknown as GenerationMix;
 
     } catch (err) {
@@ -232,6 +256,92 @@ export async function fetchGenerationMix(zoneId: string, date: Date = new Date()
         return null;
     }
 }
+
+/**
+ * Fetches Generation Mix Time Series (All available points for the day)
+ * Used for comparing zones with a common timestamp.
+ */
+export async function fetchGenerationMixTimeSeries(zoneId: string, date: Date = new Date()): Promise<GenerationMix[]> {
+    await applyChaos();
+
+    const periodStart = format(date, "yyyyMMdd") + "0000";
+    const periodEnd = format(date, "yyyyMMdd") + "2300";
+
+    const url = buildUrl({
+        documentType: 'A75',
+        processType: 'A16',
+        in_Domain: zoneId,
+        periodStart,
+        periodEnd,
+    });
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`ENTSO-E API Error: ${res.statusText}`);
+        const xml = await res.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xml, "text/xml");
+        const timeSeriesList = Array.from(doc.querySelectorAll('TimeSeries'));
+
+        // Determine Resolution
+        const resolutionStr = doc.querySelector('Period > resolution')?.textContent || 'PT60M';
+        const resolutionMinutes = resolutionStr.includes('PT15M') ? 15 : 60;
+
+        // We need to aggregate data by timestamp.
+        // Map: Timestamp -> { mix: values, total: sum }
+        const timeMap: Record<string, Record<string, number>> = {};
+
+        timeSeriesList.forEach(ts => {
+            const psrType = ts.querySelector('MktPSRType > psrType')?.textContent;
+            if (!psrType) return;
+            const category = PSR_TYPE_MAPPING[psrType] || 'other';
+
+            const points = ts.querySelectorAll('Period > Point');
+            points.forEach(point => {
+                const position = parseInt(point.getElementsByTagName('position')[0]?.textContent || '0');
+                const quantity = parseFloat(point.getElementsByTagName('quantity')[0]?.textContent || '0');
+
+                if (position > 0 && !isNaN(quantity)) {
+                    // Calculate Time
+                    const totalMinutes = (position - 1) * resolutionMinutes;
+                    const hours = Math.floor(totalMinutes / 60);
+                    const mins = totalMinutes % 60;
+                    const timeString = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+
+                    if (!timeMap[timeString]) timeMap[timeString] = {};
+                    timeMap[timeString][category] = (timeMap[timeString][category] || 0) + quantity;
+                }
+            });
+        });
+
+        // Convert Map to Array
+        const result: GenerationMix[] = Object.entries(timeMap).map(([time, mix]) => {
+            const total = Object.values(mix).reduce((a, b) => a + b, 0);
+            if (total === 0) return null;
+
+            // Calculate percentages
+            const percentages: any = { timestamp: time };
+
+            // Ensure all keys exist
+            const keys = ['nuclear', 'hydro', 'wind', 'solar', 'gas', 'coal', 'other'];
+            keys.forEach(k => {
+                const val = mix[k] || 0;
+                percentages[k] = Math.round((val / total) * 100);
+            });
+
+            return percentages as GenerationMix;
+        }).filter(Boolean) as GenerationMix[];
+
+        // Sort by time
+        return result.sort((a, b) => a.timestamp!.localeCompare(b.timestamp!));
+
+    } catch (err) {
+        console.error("Fetch Mix Time Series Failed:", err);
+        return [];
+    }
+}
+
 
 /**
  * Fetches Actual Total Load (Document Type: A65, System Total Load)
@@ -322,13 +432,22 @@ export const ZONE_EIC_MAPPINGS: Record<string, string> = {
     'LT': '10YLT-1001A0008Q',
 
     // Italy
-    'IT-NO': '10YDOM-1001A0318',  // North
+    'IT-NO': '10Y1001A1001A73I',  // North
     'IT-CNO': '10YDOM-1001A0307', // Centre-North
     'IT-CSO': '10YDOM-1001A0308', // Centre-South
     'IT-SO': '10YDOM-1001A0309',  // South
     'IT-SIC': '10YDOM-1001A0170', // Sicily
     'IT-SAR': '10YDOM-1001A0158', // Sardinia
     'IT': '10YIT-GRTN-----B',     // National (Fallback)
+
+    // Balkans
+    'HR': '10YHR-HEP------M',
+    'RS': '10YCS-SERBIATSOV',
+    'BA': '10YBA-JPCC-----D',
+    'SI': '10YSI-ELES-----O',
+    'ME': '10YCS-CG-TSO---S',
+    'MK': '10YMK-MEPSO----8',
+    'AL': '10YAL-KESH-----5',
 
     // Others
     'GR': '10YGR-HTSO-----Y',
