@@ -9,7 +9,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "npx playwright test"
+    "test": "npm run test:testmiljo",
+    "test:testmiljo": "npx playwright test",
+    "test:prodmiljo": "BASE_URL=https://el-karta-europa.web.app npx playwright test"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
