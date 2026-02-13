@@ -1,6 +1,5 @@
 import http from 'http';
 import fs from 'fs';
-import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -221,30 +220,39 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // --- Proxy to ENTSO-E ---
-    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-
+    // --- Proxy to ENTSO-E (using fetch, same as production) ---
     let query = req.url.split('?')[1] || '';
     const targetUrl = `https://${TARGET_HOST}/api?${query}`;
 
-    log(`Fetching via CURL: ${targetUrl}`);
+    log(`Fetching: ${targetUrl}`);
 
     try {
-        const curl = spawn('curl', ['-s', targetUrl]);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout, same as frontend
 
-        curl.stdout.pipe(res);
-
-        curl.stderr.on('data', (data) => {
-            log(`Curl Error: ${data}`);
+        const apiRes = await fetch(targetUrl, {
+            method: 'GET',
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'El-Karta-Europa/1.0',
+                'Accept': 'application/xml',
+            },
         });
+        clearTimeout(timeoutId);
 
-        curl.on('close', (code) => {
-            if (!res.writableEnded) res.end();
+        const text = await apiRes.text();
+
+        res.writeHead(apiRes.status, {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
         });
+        res.end(text);
     } catch (e) {
-        log(`Spawn Error: ${e.message}`);
-        res.writeHead(500);
-        res.end(e.message);
+        log(`Fetch Error: ${e.message}`);
+        if (!res.headersSent) {
+            res.writeHead(502);
+            res.end(`Proxy Error: ${e.message}`);
+        }
     }
 });
 

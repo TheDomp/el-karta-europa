@@ -423,7 +423,6 @@ export const ZONE_EIC_MAPPINGS: Record<string, string> = {
     'PT': '10YPT-REN------W',
 
     // UK / Ireland
-    'GB': '10YGB----------A',
     'IE': '10Y1001A1001A59C', // SEM (Single Electricity Market)
 
     // Baltics
@@ -431,23 +430,18 @@ export const ZONE_EIC_MAPPINGS: Record<string, string> = {
     'LV': '10YLV-1001A00074',
     'LT': '10YLT-1001A0008Q',
 
-    // Italy
-    'IT-NO': '10Y1001A1001A73I',  // North
-    'IT-CNO': '10YDOM-1001A0307', // Centre-North
-    'IT-CSO': '10YDOM-1001A0308', // Centre-South
-    'IT-SO': '10YDOM-1001A0309',  // South
-    'IT-SIC': '10YDOM-1001A0170', // Sicily
-    'IT-SAR': '10YDOM-1001A0158', // Sardinia
-    'IT': '10YIT-GRTN-----B',     // National (Fallback)
+    // Italy (Correct ENTSO-E Bidding Zone EIC codes)
+    'IT-NO': '10Y1001A1001A73I',  // North (was already correct)
+    'IT-CNO': '10Y1001A1001A70O', // Centre-North
+    'IT-CSO': '10Y1001A1001A71M', // Centre-South
+    'IT-SO': '10Y1001A1001A788',  // South
+    'IT-SAR': '10Y1001A1001A75E', // Sardinia
 
     // Balkans
     'HR': '10YHR-HEP------M',
     'RS': '10YCS-SERBIATSOV',
-    'BA': '10YBA-JPCC-----D',
     'SI': '10YSI-ELES-----O',
     'ME': '10YCS-CG-TSO---S',
-    'MK': '10YMK-MEPSO----8',
-    'AL': '10YAL-KESH-----5',
 
     // Others
     'GR': '10YGR-HTSO-----Y',

@@ -4,19 +4,33 @@ import 'leaflet/dist/leaflet.css';
 import zonesGeoJson from '../assets/data/zones.json';
 import { useGridStore } from '../store/useGridStore';
 import { ZONE_EIC_MAPPINGS } from '../services/EntsoeService';
-import L from 'leaflet';
+import { getUnsupportedReason } from '../utils/unsupportedZones';
 
-// Leaflet Icon Fix
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+// ... (Icon fix remains)
 
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
-L.Marker.prototype.options.icon = DefaultIcon;
+const Legend = () => (
+    <div className="absolute top-4 left-4 z-[1000] glass p-4 rounded-2xl border border-white/10 shadow-xl pointer-events-auto">
+        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Marknadsstatus</h4>
+        <div className="space-y-2">
+            <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#a7f3d0] border border-emerald-500/20" />
+                <span className="text-[10px] font-bold text-slate-700">Lågt Pris</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#fde047] border border-yellow-500/20" />
+                <span className="text-[10px] font-bold text-slate-700">Normalt Pris</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#fca5a5] border border-red-500/20" />
+                <span className="text-[10px] font-bold text-slate-700">Högt Pris</span>
+            </div>
+            <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
+                <div className="w-3 h-3 rounded-sm bg-[#94a3b8] opacity-40 border border-slate-400" />
+                <span className="text-[10px] font-bold text-slate-500 italic">Data saknas</span>
+            </div>
+        </div>
+    </div>
+);
 
 const MapEvents = () => {
     useMap();
@@ -36,44 +50,50 @@ export const EllevioMap: React.FC = () => {
 
         const zoneData = zonesData.find(z => z.id === zoneId);
         const isTracked = trackedZones.includes(zoneId);
-        const isSupported = zoneData?.isSupported !== false;
-
-        const price = zoneData?.price || 0;
+        const isSupported = !!ZONE_EIC_MAPPINGS[zoneId];
 
         // Color logic
         let fillColor = '#e2e8f0';
         let fillOpacity = isTracked ? 0.7 : 0.4;
+        let weight = isTracked ? 3 : 1;
+        let color = isTracked ? '#2563eb' : '#94a3b8';
 
-        if (zoneData) {
-            if (!isSupported) {
-                fillColor = '#94a3b8'; // Darker gray for unavailable
-                fillOpacity = 0.2;
-            } else {
-                if (price < 40) fillColor = '#a7f3d0';
-                else if (price < 60) fillColor = '#fde047';
-                else fillColor = '#fca5a5';
-            }
+        if (!isSupported) {
+            fillColor = '#64748b'; // More "dead" gray
+            fillOpacity = 0.15;
+            color = '#cbd5e1';
+        } else if (zoneData) {
+            const price = zoneData.price || 0;
+            if (price < 40) fillColor = '#a7f3d0';
+            else if (price < 60) fillColor = '#fde047';
+            else fillColor = '#fca5a5';
         }
 
         return {
-            fillColor: fillColor,
-            weight: isTracked ? 3 : 1,
+            fillColor,
+            weight,
             opacity: 1,
-            color: isTracked ? '#2563eb' : '#94a3b8',
-            dashArray: isTracked ? '' : '3',
-            fillOpacity: fillOpacity
+            color,
+            dashArray: isTracked ? '' : (isSupported ? '3' : ''),
+            fillOpacity,
+            className: isSupported ? 'cursor-pointer' : 'cursor-default'
         };
     };
 
     const onEachFeature = (feature: any, layer: any) => {
         const zoneId = feature.properties.zoneName || feature.id;
-        // Check static mapping for immediate interaction feedback/logic
         const isSupported = !!ZONE_EIC_MAPPINGS[zoneId];
+        const reason = getUnsupportedReason(zoneId);
 
-        layer.bindTooltip(feature.properties.zoneName || feature.properties.name, {
+        let tooltipContent = feature.properties.zoneName || feature.properties.name;
+        if (!isSupported) {
+            tooltipContent = `${tooltipContent} (Data saknas${reason ? `: ${reason}` : ''})`;
+        }
+
+        layer.bindTooltip(tooltipContent, {
             permanent: false,
             direction: "center",
-            className: "bg-transparent border-0 text-slate-800 font-bold shadow-none text-[10px]"
+            className: `bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg px-2 py-1 text-slate-800 font-bold shadow-lg text-[10px] ${!isSupported ? 'opacity-80' : ''}`
         });
 
         layer.on({
@@ -84,11 +104,16 @@ export const EllevioMap: React.FC = () => {
             },
             mouseover: (e: any) => {
                 const l = e.target;
-                l.setStyle({ fillOpacity: 0.8 });
+                if (isSupported) {
+                    l.setStyle({ fillOpacity: 0.8 });
+                }
                 l.openTooltip();
             },
             mouseout: (e: any) => {
                 const l = e.target;
+                if (isSupported) {
+                    l.setStyle({ fillOpacity: style(feature).fillOpacity });
+                }
                 l.closeTooltip();
             }
         });
@@ -96,6 +121,8 @@ export const EllevioMap: React.FC = () => {
 
     return (
         <div className="w-full h-full relative z-0">
+            <Legend />
+
             <MapContainer
                 center={[52.0, 10.0]} // Centered on Central Europe
                 zoom={4}

@@ -37,6 +37,7 @@ export const ZoneTable: React.FC = () => {
                         <p className="text-[9px] text-[var(--text-secondary)] uppercase tracking-widest font-bold">{visibleData.length} Aktiva</p>
                     </div>
                     <div className="flex gap-2">
+
                         {visibleData.length >= 2 && (
                             <button
                                 onClick={() => setIsCompareOpen(true)}
@@ -46,6 +47,7 @@ export const ZoneTable: React.FC = () => {
                                 JÄMFÖR
                             </button>
                         )}
+
                         <button
                             onClick={clearTrackedZones}
                             className="p-2 text-[var(--text-secondary)] hover:text-[var(--energy-red)] hover:bg-[var(--energy-red)]/10 rounded-xl transition-colors"
