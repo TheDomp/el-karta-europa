@@ -10,8 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "npm run test:testmiljo",
-    "test:testmiljo": "npx playwright test",
-    "test:prodmiljo": "BASE_URL=https://el-karta-europa.web.app npx playwright test"
+    "test:testmiljo": "npx playwright test --project='Testmiljö (Local)'",
+    "test:prodmiljo": "BASE_URL=https://el-karta-europa.vercel.app npx playwright test --project='Prodmiljö (Live)'"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -22,6 +22,7 @@
     "framer-motion": "^12.27.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
+    "node-fetch": "^3.3.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-leaflet": "^5.0.0",

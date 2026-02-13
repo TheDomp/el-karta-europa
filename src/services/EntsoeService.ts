@@ -14,9 +14,9 @@ export const ChaosConfig = {
 };
 
 // Use proxy in development to avoid CORS, full URL in production/test if not using dev server proxy (but tests use dev server so proxy works)
-const API_BASE = import.meta.env.DEV
-    ? '/entsoe-api'
-    : 'https://web-api.tp.entsoe.eu/api';
+// Use proxy in development (Vite) and production (Firebase Functions)
+// This avoids CORS issues by ensuring browser always calls own origin
+const API_BASE = '/entsoe-api';
 // Use a proxy in production, or ensure CORS is handled. For demo/localhost, explicit proxy or extension might be needed 
 // if ENTSO-E doesn't support CORS. 
 // NOTE: ENTSO-E Transparency API generally supports CORS for simple GETs but sometimes requires a proxy.

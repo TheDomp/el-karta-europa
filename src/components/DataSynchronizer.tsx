@@ -76,6 +76,8 @@ export const DataSynchronizer = () => {
                                 (mix.other * 700);
                             const carbonIntensity = Math.round(ci / 100);
 
+                            console.log(`[DataSynchronizer] ✅ REAL DATA for ${id}: price=${price.toFixed(2)}, load=${load}`);
+
                             return {
                                 id,
                                 price: parseFloat(price.toFixed(2)),

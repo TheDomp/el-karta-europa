@@ -13,6 +13,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         // proxy-server.mjs ignores path, just reads query param from original url
+      },
+      '/chat': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true,
+        secure: false,
       }
     }
   },

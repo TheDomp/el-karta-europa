@@ -103,7 +103,9 @@ export const useGridStore = create<GridState>((set, get) => ({
 }));
 
 // Expose store for testing in Development
-if (import.meta.env.DEV) {
+// Expose store for testing (Dev & Prod/Vercel)
+// @ts-ignore
+if (typeof window !== 'undefined') {
     // @ts-ignore
     window.gridStore = useGridStore;
 }

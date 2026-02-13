@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env
+
+# Testing
+test-results/
+playwright-report/
+.agent/
+scenarios/
+proxy_server.log

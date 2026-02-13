@@ -30,14 +30,14 @@ export default defineConfig({
             name: 'Prodmiljö (Live)',
             use: {
                 ...devices['Desktop Chrome'],
-                baseURL: 'https://el-karta-europa.web.app'
+                baseURL: 'https://el-karta-europa.vercel.app'
             },
         },
     ],
 
     // Run your local dev server before starting the tests (ONLY for Local/Testmiljö)
     webServer: hasCustomBaseUrl ? undefined : {
-        command: 'npm run dev',
+        command: 'npm start',
         url: 'http://127.0.0.1:5173',
         reuseExistingServer: !process.env.CI,
     },

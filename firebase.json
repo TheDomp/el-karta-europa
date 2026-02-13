@@ -8,9 +8,20 @@
     ],
     "rewrites": [
       {
+        "source": "/entsoe-api",
+        "function": "entsoeProxy"
+      },
+      {
+        "source": "/chat",
+        "function": "chatProxy"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
     ]
+  },
+  "functions": {
+    "source": "functions"
   }
 }

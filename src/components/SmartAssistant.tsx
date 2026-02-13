@@ -61,7 +61,7 @@ export const SmartAssistant: React.FC = () => {
         setIsTyping(true);
 
         try {
-            const res = await fetch('http://localhost:3001/chat', {
+            const res = await fetch('/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
