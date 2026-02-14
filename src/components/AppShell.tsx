@@ -11,10 +11,10 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             {/* Header - Premium Glass Style */}
             <header className="absolute top-0 left-0 right-0 z-50 p-6 md:p-8 flex justify-between pointer-events-none">
                 <motion.div
-                    initial={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }} // Custom ease for premium feel
-                    className="pointer-events-auto glass px-6 py-4 rounded-2xl flex flex-col gap-1 border border-[var(--glass-border)] shadow-2xl shadow-black/50"
+                    className="pointer-events-auto glass px-6 py-4 rounded-2xl flex flex-col gap-1 border border-[var(--glass-border)] shadow-xl shadow-black/10"
                 >
                     <div className="flex items-center gap-3">
                         <div className="w-1.5 h-8 bg-[var(--energy-blue)] rounded-full shadow-[0_0_15px_var(--energy-blue)]" />

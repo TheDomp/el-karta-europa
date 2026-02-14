@@ -1,7 +1,6 @@
 {
   "projects": {
-    "default": "el-karta-europa-2026"
-  },
-  "targets": {},
-  "etags": {}
+    "prod": "el-karta-europa-2026",
+    "dev": "el-karta-europa-dev-2026"
+  }
 }

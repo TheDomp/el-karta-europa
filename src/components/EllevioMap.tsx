@@ -8,29 +8,7 @@ import { getUnsupportedReason } from '../utils/unsupportedZones';
 
 // ... (Icon fix remains)
 
-const Legend = () => (
-    <div className="absolute top-4 left-4 z-[1000] glass p-4 rounded-2xl border border-white/10 shadow-xl pointer-events-auto">
-        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Marknadsstatus</h4>
-        <div className="space-y-2">
-            <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#a7f3d0] border border-emerald-500/20" />
-                <span className="text-[10px] font-bold text-slate-700">Lågt Pris</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#fde047] border border-yellow-500/20" />
-                <span className="text-[10px] font-bold text-slate-700">Normalt Pris</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#fca5a5] border border-red-500/20" />
-                <span className="text-[10px] font-bold text-slate-700">Högt Pris</span>
-            </div>
-            <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
-                <div className="w-3 h-3 rounded-sm bg-[#94a3b8] opacity-40 border border-slate-400" />
-                <span className="text-[10px] font-bold text-slate-500 italic">Data saknas</span>
-            </div>
-        </div>
-    </div>
-);
+// Legend removed — map tooltips provide sufficient context
 
 const MapEvents = () => {
     useMap();
@@ -121,7 +99,7 @@ export const EllevioMap: React.FC = () => {
 
     return (
         <div className="w-full h-full relative z-0">
-            <Legend />
+
 
             <MapContainer
                 center={[52.0, 10.0]} // Centered on Central Europe

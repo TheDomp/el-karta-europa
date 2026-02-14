@@ -2,9 +2,9 @@ const { onRequest } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const { defineSecret } = require('firebase-functions/params');
 
-// Define the GEMINI_API_KEY secret
-// Run: firebase functions:secrets:set GEMINI_API_KEY
-const apiKey = defineSecret('GEMINI_API_KEY');
+// Define the GEMINI_API_KEY secrets for different environments
+const apiKeyProd = defineSecret('GEMINI_API_KEY_PROD');
+const apiKeyDev = defineSecret('GEMINI_API_KEY_DEV');
 
 const funnyOffTopicReplies = [
     "Szzzt! Mitt huvud är fullt av högspänning just nu, jag kan tyvärr bara tänka på elpriser. Fråga om SE3 istället!",
@@ -134,7 +134,10 @@ exports.entsoeProxy = onRequest({ cors: true }, async (request, response) => {
 
 // Chat Proxy Function (Gemini)
 // Injects the secret 'GEMINI_API_KEY'
-exports.chatProxy = onRequest({ cors: true, secrets: [apiKey] }, async (request, response) => {
+exports.chatProxy = onRequest({
+    cors: true,
+    secrets: [apiKeyProd, apiKeyDev]
+}, async (request, response) => {
     if (request.method !== 'POST') {
         response.status(405).send('Method Not Allowed');
         return;
@@ -151,7 +154,12 @@ exports.chatProxy = onRequest({ cors: true, secrets: [apiKey] }, async (request,
         }
 
         // B. Gemini (Pass the secret value)
-        const reply = await callGemini(message, context, apiKey.value());
+        // Determine which key to use based on project ID
+        const projectId = process.env.GCLOUD_PROJECT || '';
+        const isDev = projectId.includes('dev');
+        const key = isDev ? apiKeyDev.value() : apiKeyProd.value();
+
+        const reply = await callGemini(message, context, key);
         response.json({ reply });
 
     } catch (error) {
